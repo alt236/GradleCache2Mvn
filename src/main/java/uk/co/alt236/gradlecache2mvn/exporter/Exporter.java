@@ -7,6 +7,7 @@ import uk.co.alt236.gradlecache2mvn.util.HashUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class Exporter {
     private static final String LOG_TEMPLATE = "For artifactId: %s, groupId: %s, version: %s";
@@ -17,13 +18,15 @@ public class Exporter {
         final CopyJobFactory copyJobFactory = new CopyJobFactory();
         for (final GradleMavenArtifactGroup artifactGroup : artifacts) {
             final List<CopyJobFactory.FileToCopy> filesToCopy = copyJobFactory.createJobs(artifactGroup, exportPath);
+
+            System.out.println(String.format(Locale.US, LOG_TEMPLATE,
+                    artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion()));
+            System.out.println("\tfiles to copy: " + filesToCopy.size());
             copy(filesToCopy);
         }
     }
 
     private void copy(List<CopyJobFactory.FileToCopy> filesToCopy) {
-        System.out.println("Files to copy: " + filesToCopy.size());
-
         for (final CopyJobFactory.FileToCopy fileToCopy : filesToCopy) {
             final File destination = fileToCopy.getDestination();
             final File source = fileToCopy.getSource().getFile();
