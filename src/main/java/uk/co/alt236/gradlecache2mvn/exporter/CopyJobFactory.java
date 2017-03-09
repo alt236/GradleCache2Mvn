@@ -11,8 +11,6 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /*package*/ class CopyJobFactory {
-    private static final String LOG_TEMPLATE = "For artifactId: %s, groupId: %s, version: %s";
-
     // Primary artifact
     // /$groupId[0]/../$groupId[n]/$artifactId/$version/$artifactId-$version.$extension;
     // Secondary Artifact
@@ -38,11 +36,6 @@ import java.util.stream.Collectors;
         } else {
             final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
             retVal = createCopyJobs(classifiedFiles, basePath);
-
-            System.out.println(String.format(Locale.US, LOG_TEMPLATE, artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion()));
-            for (FileToCopy fileToCopy : retVal) {
-                System.out.println("\tWill save " + fileToCopy.getFile().getFileName() + " as " + fileToCopy.getNewPath());
-            }
         }
 
         return retVal;
@@ -91,11 +84,11 @@ import java.util.stream.Collectors;
             this.newPath = newPath;
         }
 
-        public ArtifactFile getFile() {
+        public ArtifactFile getSource() {
             return file;
         }
 
-        public File getNewPath() {
+        public File getDestination() {
             return newPath;
         }
     }
