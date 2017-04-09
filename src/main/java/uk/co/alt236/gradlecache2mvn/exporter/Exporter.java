@@ -13,7 +13,8 @@ public class Exporter {
     private static final String LOG_TEMPLATE = "For artifactId: %s, groupId: %s, version: %s";
 
     public void export(final List<GradleMavenArtifactGroup> artifacts,
-                       final String exportPath) {
+                       final String exportPath,
+                       final boolean dryRun) {
 
         final CopyJobFactory copyJobFactory = new CopyJobFactory();
         for (final GradleMavenArtifactGroup artifactGroup : artifacts) {
@@ -22,11 +23,12 @@ public class Exporter {
             System.out.println(String.format(Locale.US, LOG_TEMPLATE,
                     artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion()));
             System.out.println("\tfiles to copy: " + filesToCopy.size());
-            copy(filesToCopy);
+            copy(filesToCopy, dryRun);
         }
     }
 
-    private void copy(List<CopyJobFactory.FileToCopy> filesToCopy) {
+    private void copy(List<CopyJobFactory.FileToCopy> filesToCopy,
+                      boolean dryRun) {
         for (final CopyJobFactory.FileToCopy fileToCopy : filesToCopy) {
             final File destination = fileToCopy.getDestination();
             final File source = fileToCopy.getSource().getFile();
@@ -35,11 +37,15 @@ public class Exporter {
                         + source
                         + " to "
                         + destination);
-                try {
-                    FileUtils.copyFile(source, destination, true);
-                    writeMd5(fileToCopy);
-                } catch (IOException e) {
-                    throw new IllegalStateException(e.getMessage(), e);
+                if (!dryRun) {
+                    try {
+                        FileUtils.copyFile(source, destination, true);
+                        writeMd5(fileToCopy);
+                    } catch (IOException e) {
+                        throw new IllegalStateException(e.getMessage(), e);
+                    }
+                } else {
+                    System.out.println("\t---DRY RUN---");
                 }
             } else {
                 System.out.println("\tSkipping as it exists and has same MD5: "

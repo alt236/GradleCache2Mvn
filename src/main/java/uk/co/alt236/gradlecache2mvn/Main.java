@@ -10,14 +10,15 @@ public class Main {
 
     public static void main(String[] args) {
         final String input = "~/.gradle/caches/modules-2/files-2.1";
-        final String ouput = "~/tmp/fakemvn";
+        final String ouput = "~/tmp/fakemvn2";
+        final boolean dryRun = false;
 
         final List<GradleMavenArtifactGroup> artifacts = new GradleCacheReader(sanePath(input))
                 .getDependencies();
 
         System.out.println("--------------------------");
 
-        new Exporter().export(artifacts, sanePath(ouput));
+        new Exporter().export(artifacts, sanePath(ouput), dryRun);
     }
 
     private static String sanePath(final String path) {

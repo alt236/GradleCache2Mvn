@@ -69,7 +69,7 @@ import java.util.stream.Collectors;
         return String.format(
                 Locale.US,
                 BASE_PATH,
-                artifact.getGroupId(),
+                artifact.getGroupId().replace(".", System.getProperty("file.separator")),
                 artifact.getArtifactId(),
                 artifact.getVersion());
     }
