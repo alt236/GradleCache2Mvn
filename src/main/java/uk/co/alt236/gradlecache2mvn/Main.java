@@ -5,7 +5,9 @@ import uk.co.alt236.gradlecache2mvn.cli.CommandHelpPrinter;
 import uk.co.alt236.gradlecache2mvn.cli.CommandLineWrapper;
 import uk.co.alt236.gradlecache2mvn.cli.OptionsBuilder;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.exporter.Exporter;
 import uk.co.alt236.gradlecache2mvn.core.reader.GradleCacheReader;
+import uk.co.alt236.gradlecache2mvn.resources.Strings;
 
 import java.io.File;
 import java.util.List;
@@ -13,12 +15,9 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-//        final String input = "~/.gradle/caches/modules-2/files-2.1";
-//        final String ouput = "~/tmp/fakemvn2";
-//        final boolean dryRun = false;
-
+        final Strings strings = new Strings();
         final CommandLineParser parser = new DefaultParser();
-        final Options options = new OptionsBuilder().compileOptions();
+        final Options options = new OptionsBuilder(strings).compileOptions();
 
         if (args.length == 0) {
             new CommandHelpPrinter(options, getJarName()).printHelp();
@@ -33,7 +32,7 @@ public class Main {
                 System.exit(1);
             }
 
-            new Core(new CommandLineWrapper(line)).doWork();
+            new Core(strings, new CommandLineWrapper(line)).doWork();
         }
 
     }
@@ -44,14 +43,24 @@ public class Main {
     }
 
     private static String sanePath(final String path) {
-        return path.replaceFirst("^~", System.getProperty("user.home"));
+        final String retVal;
+
+        if (path == null) {
+            retVal = "";
+        } else {
+            retVal = path.replaceFirst("^~", System.getProperty("user.home"));
+        }
+
+        return retVal;
     }
 
     private static class Core {
 
         private final CommandLineWrapper commandLine;
+        private final Strings strings;
 
-        Core(final CommandLineWrapper commandLine) {
+        Core(final Strings strings, final CommandLineWrapper commandLine) {
+            this.strings = strings;
             this.commandLine = commandLine;
         }
 
@@ -60,12 +69,25 @@ public class Main {
             final String output = commandLine.getOutputDirectory();
             final boolean dryRun = commandLine.isDryRun();
 
-            final List<GradleMavenArtifactGroup> artifacts = new GradleCacheReader(sanePath(input))
-                    .getDependencies();
+
+            final String saneInput = sanePath(
+                    input == null || input.isEmpty()
+                            ? strings.getString("default_gradle_cache_location")
+                            : input);
+
+            final String saneOutput = sanePath(output);
+
+            System.out.println("Input (Gradle cache location): " + saneInput);
+            System.out.println("Output (Maven repo location): " + saneOutput);
+            System.out.println("Dry run: " + dryRun);
+            System.out.println("--------------------------");
+
+            final List<GradleMavenArtifactGroup> artifacts =
+                    new GradleCacheReader(sanePath(saneInput)).getDependencies();
 
             System.out.println("--------------------------");
 
-//            new Exporter().export(artifacts, sanePath(output), dryRun);
+            new Exporter().export(artifacts, saneOutput, dryRun);
         }
     }
 

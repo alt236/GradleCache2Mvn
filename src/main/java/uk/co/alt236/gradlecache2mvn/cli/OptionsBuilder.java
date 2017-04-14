@@ -4,8 +4,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import uk.co.alt236.gradlecache2mvn.resources.Strings;
 
-import java.util.Locale;
-
 public class OptionsBuilder {
 
     /*package*/ static final String ARG_MVN_DIR = "o";
@@ -19,12 +17,8 @@ public class OptionsBuilder {
 
     private final Strings strings;
 
-    public OptionsBuilder() {
-        strings = new Strings();
-    }
-
-    private static <E extends Enum<?>> String toLower(final E enm) {
-        return enm.name().toLowerCase(Locale.US);
+    public OptionsBuilder(Strings strings) {
+        this.strings = strings;
     }
 
     public Options compileOptions() {
@@ -41,6 +35,7 @@ public class OptionsBuilder {
         final String desc = strings.getString("cli_cmd_output_location");
         return Option.builder(ARG_MVN_DIR)
                 .longOpt(ARG_MVN_DIR_LONG)
+                .hasArg()
                 .required(true)
                 .desc(desc)
                 .build();
@@ -50,6 +45,7 @@ public class OptionsBuilder {
         final String desc = strings.getString("cli_cmd_input_location");
         return Option.builder(ARG_GRADLE_CACHE)
                 .longOpt(ARG_GRADLE_CACHE_LONG)
+                .hasArg()
                 .required(false)
                 .desc(desc)
                 .build();

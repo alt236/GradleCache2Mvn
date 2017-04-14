@@ -2,23 +2,27 @@ package uk.co.alt236.gradlecache2mvn.cli;
 
 import org.apache.commons.cli.CommandLine;
 
+import java.util.Arrays;
+
 public class CommandLineWrapper {
 
     private final CommandLine commandLine;
 
     public CommandLineWrapper(final CommandLine commandLine) {
         this.commandLine = commandLine;
+        System.out.println(commandLine.getArgList());
+        System.out.println(Arrays.toString(commandLine.getOptions()));
     }
 
     public boolean isDryRun() {
-        return commandLine.hasOption(OptionsBuilder.ARG_DRY_RUN);
+        return commandLine.hasOption(OptionsBuilder.ARG_DRY_RUN_LONG);
     }
 
     public String getOutputDirectory() {
-        return commandLine.getOptionValue(OptionsBuilder.ARG_MVN_DIR);
+        return commandLine.getOptionValue(OptionsBuilder.ARG_MVN_DIR_LONG);
     }
 
     public String getInputDirectory() {
-        return commandLine.getOptionValue(OptionsBuilder.ARG_GRADLE_CACHE);
+        return commandLine.getOptionValue(OptionsBuilder.ARG_GRADLE_CACHE_LONG);
     }
 }
