@@ -1,6 +1,6 @@
-package uk.co.alt236.gradlecache2mvn.reader;
+package uk.co.alt236.gradlecache2mvn.core.reader;
 
-import uk.co.alt236.gradlecache2mvn.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.util.FileUtil;
 
 import java.io.File;

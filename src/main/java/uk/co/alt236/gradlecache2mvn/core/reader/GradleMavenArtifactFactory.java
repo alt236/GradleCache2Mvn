@@ -1,10 +1,10 @@
-package uk.co.alt236.gradlecache2mvn.reader;
+package uk.co.alt236.gradlecache2mvn.core.reader;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import uk.co.alt236.gradlecache2mvn.artifacts.ArtifactFile;
-import uk.co.alt236.gradlecache2mvn.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.util.FileUtil;
 import uk.co.alt236.gradlecache2mvn.util.HashUtil;
 

@@ -1,8 +1,8 @@
-package uk.co.alt236.gradlecache2mvn.exporter;
+package uk.co.alt236.gradlecache2mvn.core.exporter;
 
 import org.apache.commons.io.FilenameUtils;
-import uk.co.alt236.gradlecache2mvn.artifacts.ArtifactFile;
-import uk.co.alt236.gradlecache2mvn.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 
 import java.util.ArrayList;
 import java.util.List;

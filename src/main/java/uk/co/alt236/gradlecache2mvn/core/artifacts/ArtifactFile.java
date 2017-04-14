@@ -1,4 +1,4 @@
-package uk.co.alt236.gradlecache2mvn.artifacts;
+package uk.co.alt236.gradlecache2mvn.core.artifacts;
 
 import java.io.File;
 

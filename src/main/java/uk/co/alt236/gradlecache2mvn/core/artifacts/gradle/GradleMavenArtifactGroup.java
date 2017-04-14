@@ -1,7 +1,7 @@
-package uk.co.alt236.gradlecache2mvn.artifacts.gradle;
+package uk.co.alt236.gradlecache2mvn.core.artifacts.gradle;
 
-import uk.co.alt236.gradlecache2mvn.artifacts.ArtifactFile;
-import uk.co.alt236.gradlecache2mvn.artifacts.MavenArtifact;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
 
 import java.util.Collection;
 import java.util.Collections;

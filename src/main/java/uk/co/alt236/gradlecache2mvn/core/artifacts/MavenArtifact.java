@@ -1,4 +1,4 @@
-package uk.co.alt236.gradlecache2mvn.artifacts;
+package uk.co.alt236.gradlecache2mvn.core.artifacts;
 
 public interface MavenArtifact {
     String getArtifactId();
