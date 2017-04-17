@@ -4,11 +4,10 @@ import org.apache.commons.io.FilenameUtils;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*package*/ final class ArtifactClassifier {
-
+    private static final Set<String> OTHER_EXTENSIONS = new HashSet<>(Arrays.asList("md5", "sha1"));
 
     public static ClassifiedFiles classify(final GradleMavenArtifactGroup artifactGroup) {
 
@@ -21,7 +20,7 @@ import java.util.List;
             final String fileName = file.getFileName();
             if (FilenameUtils.isExtension(fileName, "pom")) {
                 pomFiles.add(file);
-            } else if (FilenameUtils.isExtension(fileName, "md5")) {
+            } else if (isOtherFile(FilenameUtils.getExtension(fileName))) {
                 otherFiles.add(file);
             } else {
                 //$artifactId-$version.$extension
@@ -35,6 +34,14 @@ import java.util.List;
         }
 
         return new ClassifiedFiles(pomFiles, primaryArtifactFiles, secondaryArtifactFiles, otherFiles);
+    }
+
+    private static boolean isOtherFile(final String ext) {
+        if (ext == null || "".equals(ext)) {
+            return true;
+        } else {
+            return OTHER_EXTENSIONS.contains(ext.toLowerCase(Locale.US));
+        }
     }
 
     public static class ClassifiedFiles {
