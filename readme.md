@@ -17,6 +17,8 @@ Will convert a gradle cache directory structure to the equivelent Maven one.
 	$ gradlecache2mvn-X.X.X.jar --input ~/.gradle/caches/modules-2/files-2.1/ --output ~/gradle2mvn/
 	$ gradlecache2mvn-X.X.X.jar -o ~/gradle2mvn/
 
+### Binaries
+Binaries can be found here: [https://github.com/alt236/GradleCache2Mvn/releases]()
 
 ### Notes
 - This will not create POM files if the gradle cache has none. Essentially, if the cached gradle dependency was not a Maven one, it will not be converted.
