@@ -7,8 +7,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public final class HashUtil {
-    private HashUtil() {
+public final class Hasher {
+
+    private Hasher() {
         // NOOP
     }
 
