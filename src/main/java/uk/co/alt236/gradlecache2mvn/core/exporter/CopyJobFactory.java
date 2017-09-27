@@ -3,11 +3,14 @@ package uk.co.alt236.gradlecache2mvn.core.exporter;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.util.DuplicateFinder;
+import uk.co.alt236.gradlecache2mvn.util.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /*package*/ class CopyJobFactory {
@@ -18,27 +21,35 @@ import java.util.stream.Collectors;
     // POM
     // $artifactId-$version.pom
 
+    private static final String FILES_WITH_SAME_NAME_TEMPLATE = "Artifact contains files with the same name: artifactId: %s, groupId: %s, version: %s. Filenames: %s";
     private static final String BASE_PATH = "/%s/%s/%s/";
 
-    public List<FileToCopy> createJobs(final GradleMavenArtifactGroup artifactGroup,
-                                       final String exportPath) {
-        List<FileToCopy> retVal = new ArrayList<>();
+    public Result createJobs(final GradleMavenArtifactGroup artifactGroup,
+                             final String exportPath) {
+        final boolean error;
+        List<FileToCopy> filesToCopy = new ArrayList<>();
+        if (validateArtifactGroup(artifactGroup)) {
+            final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
-        final ArtifactClassifier.ClassifiedFiles classifiedFiles =
-                ArtifactClassifier.classify(artifactGroup);
-
-        if (classifiedFiles.getPomFiles().isEmpty()) {
-            System.err.println("ERROR: No POM file found: " + artifactGroup);
-        } else if (classifiedFiles.getPomFiles().size() > 1) {
-            System.err.println("ERROR: " + classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup);
-        } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-            System.err.println("ERROR: " + classifiedFiles.getPomFiles().size() + " Primary artifact files found: " + artifactGroup);
+            if (classifiedFiles.getPomFiles().isEmpty()) {
+                Logger.logError("No POM file found: " + artifactGroup);
+                error = true;
+            } else if (classifiedFiles.getPomFiles().size() > 1) {
+                Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup);
+                error = true;
+            } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
+                Logger.logError(classifiedFiles.getPomFiles().size() + " Primary artifact files found: " + artifactGroup);
+                error = true;
+            } else {
+                final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
+                filesToCopy = createCopyJobs(classifiedFiles, basePath);
+                error = false;
+            }
         } else {
-            final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
-            retVal = createCopyJobs(classifiedFiles, basePath);
+            error = true;
         }
 
-        return retVal;
+        return new Result(filesToCopy, error);
     }
 
     private List<FileToCopy> createCopyJobs(final ArtifactClassifier.ClassifiedFiles classifiedFiles,
@@ -51,8 +62,7 @@ import java.util.stream.Collectors;
 
         if (!classifiedFiles.getPrimaryArtifactFiles().isEmpty()) {
             final ArtifactFile primaryFile = classifiedFiles.getPrimaryArtifactFiles().get(0); // There should only be 1
-            retVal.add(
-                    new FileToCopy(primaryFile, new File(basePath + primaryFile.getFileName())));
+            retVal.add(new FileToCopy(primaryFile, new File(basePath + primaryFile.getFileName())));
         }
 
         retVal.addAll(
@@ -72,6 +82,43 @@ import java.util.stream.Collectors;
                 artifact.getGroupId().replace(".", System.getProperty("file.separator")),
                 artifact.getArtifactId(),
                 artifact.getVersion());
+    }
+
+    private boolean validateArtifactGroup(GradleMavenArtifactGroup artifactGroup) {
+        boolean retVal = true;
+        final List<String> fileNames = new ArrayList<>();
+        for (final ArtifactFile file : artifactGroup.getFiles()) {
+            fileNames.add(file.getFileName());
+        }
+
+        final Set<String> duplicates = DuplicateFinder.findDuplicates(fileNames);
+
+        if (!duplicates.isEmpty()) {
+            Logger.logError(String.format(Locale.US, FILES_WITH_SAME_NAME_TEMPLATE,
+                    artifactGroup.getArtifactId(), artifactGroup.getGroupId(),
+                    artifactGroup.getVersion(), duplicates));
+            retVal = false;
+        }
+
+        return retVal;
+    }
+
+    public static class Result {
+        private final List<FileToCopy> filesToCopy;
+        private final boolean error;
+
+        public Result(List<FileToCopy> filesToCopy, boolean error) {
+            this.filesToCopy = filesToCopy;
+            this.error = error;
+        }
+
+        public List<FileToCopy> getFilesToCopy() {
+            return filesToCopy;
+        }
+
+        public boolean hasError() {
+            return error;
+        }
     }
 
     public static class FileToCopy {

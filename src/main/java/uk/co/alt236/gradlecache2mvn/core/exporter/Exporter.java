@@ -1,65 +1,53 @@
 package uk.co.alt236.gradlecache2mvn.core.exporter;
 
 import org.apache.commons.io.FileUtils;
-import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
-import uk.co.alt236.gradlecache2mvn.util.DuplicateFinder;
 import uk.co.alt236.gradlecache2mvn.util.Hasher;
+import uk.co.alt236.gradlecache2mvn.util.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 public class Exporter {
     private static final String LOG_TEMPLATE = "For artifactId: %s, groupId: %s, version: %s";
-    private static final String FILES_WITH_SAME_NAME_TEMPLATE = "ERROR: artifactId: %s, groupId: %s, version: %s has files with same name! %s";
 
-    public void export(final List<GradleMavenArtifactGroup> artifacts,
-                       final String exportPath,
-                       final boolean dryRun) {
+    public Result export(final List<GradleMavenArtifactGroup> artifacts,
+                         final String exportPath,
+                         final boolean dryRun) {
 
         final CopyJobFactory copyJobFactory = new CopyJobFactory();
-        for (final GradleMavenArtifactGroup artifactGroup : artifacts) {
-            if (validateArtifactGroup(artifactGroup)) {
-                System.out.println(String.format(Locale.US, LOG_TEMPLATE,
-                        artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion()));
+        int errors = 0;
+        int copied = 0;
+        int skipped = 0;
 
-                final List<CopyJobFactory.FileToCopy> filesToCopy = copyJobFactory.createJobs(artifactGroup, exportPath);
-                System.out.println("\tfiles to copy: " + filesToCopy.size());
-                copy(filesToCopy, dryRun);
+        for (final GradleMavenArtifactGroup artifactGroup : artifacts) {
+            final CopyJobFactory.Result copyJobs = copyJobFactory.createJobs(artifactGroup, exportPath);
+            if (!copyJobs.hasError()) {
+                Logger.log(LOG_TEMPLATE, artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion());
+                Logger.log("\tfiles to copy: " + copyJobs.getFilesToCopy().size());
+                final Result result = copy(copyJobs.getFilesToCopy(), dryRun);
+                errors += result.getErrors();
+                copied += result.getCopied();
+                skipped += result.getSkipped();
+            } else {
+                errors += artifactGroup.getFiles().size();
             }
         }
+
+        return new Result(copied, skipped, errors);
     }
 
-    private boolean validateArtifactGroup(GradleMavenArtifactGroup artifactGroup) {
-        boolean retVal = true;
-        final List<String> fileNames = new ArrayList<>();
-        for (final ArtifactFile file : artifactGroup.getFiles()) {
-            fileNames.add(file.getFileName());
-        }
+    private Result copy(List<CopyJobFactory.FileToCopy> filesToCopy, boolean dryRun) {
+        int copied = 0;
+        int skipped = 0;
 
-        final Set<String> duplicates = DuplicateFinder.findDuplicates(fileNames);
-
-        if (!duplicates.isEmpty()) {
-            System.err.println(String.format(Locale.US, FILES_WITH_SAME_NAME_TEMPLATE,
-                    artifactGroup.getArtifactId(), artifactGroup.getGroupId(),
-                    artifactGroup.getVersion(), duplicates));
-            retVal = false;
-        }
-
-        return retVal;
-    }
-
-    private void copy(List<CopyJobFactory.FileToCopy> filesToCopy,
-                      boolean dryRun) {
         for (final CopyJobFactory.FileToCopy fileToCopy : filesToCopy) {
             final File destination = fileToCopy.getDestination();
             final File source = fileToCopy.getSource().getFile();
             if (shouldCopy(fileToCopy)) {
-                System.out.printf("\tCopying %s to %s%n", source, destination);
+                copied++;
+                Logger.logImportant("\tCopying %s to %s%n", source, destination);
                 if (!dryRun) {
                     try {
                         FileUtils.copyFile(source, destination, true);
@@ -68,12 +56,15 @@ public class Exporter {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
                 } else {
-                    System.out.println("\t---DRY RUN---");
+                    Logger.logImportant("\t---DRY RUN---");
                 }
             } else {
-                System.out.printf("\tSkipping as it exists and is the same: Copying %s to %s%n", source, destination);
+                skipped++;
+                Logger.log("\tSkipping as it exists and is the same: Copying %s to %s%n", source, destination);
             }
         }
+
+        return new Result(copied, skipped, 0);
     }
 
     private boolean shouldCopy(CopyJobFactory.FileToCopy fileToCopy) {
@@ -97,5 +88,30 @@ public class Exporter {
         final String content = fileToCopy.getSource().getMd5() + "  " + destination.getName();
 
         FileUtils.writeStringToFile(destinationMd5, content, "UTF-8");
+    }
+
+    public static class Result {
+        private final int copied;
+        private final int skipped;
+        private final int errors;
+
+
+        public Result(int copied, int skipped, int errors) {
+            this.copied = copied;
+            this.skipped = skipped;
+            this.errors = errors;
+        }
+
+        public int getCopied() {
+            return copied;
+        }
+
+        public int getSkipped() {
+            return skipped;
+        }
+
+        public int getErrors() {
+            return errors;
+        }
     }
 }

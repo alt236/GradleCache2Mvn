@@ -7,6 +7,7 @@ import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.util.FileUtil;
 import uk.co.alt236.gradlecache2mvn.util.Hasher;
+import uk.co.alt236.gradlecache2mvn.util.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
             final File[] versionFolders = FileUtil.getSubfolders(artifactIdFolder);
             for (final File versionFolder : versionFolders) {
                 final String version = versionFolder.getName();
-                System.out.println(String.format(Locale.US, LOG_ARTIFACT, artifactId, groupId, version));
+                Logger.log(String.format(Locale.US, LOG_ARTIFACT, artifactId, groupId, version));
 
                 final List<ArtifactFile> files = getFiles(groupId, artifactId, version, versionFolder);
 
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
                 for (final ArtifactFile file : files) {
                     final String fileName = file.getFileName();
                     final String hash = file.getMd5();
-                    System.out.println(String.format(Locale.US, LOG_FILES, fileName, hash));
+                    Logger.log(String.format(Locale.US, LOG_FILES, fileName, hash));
                 }
 
                 retVal.add(new GradleMavenArtifactGroup(groupId, artifactId, version, files));
