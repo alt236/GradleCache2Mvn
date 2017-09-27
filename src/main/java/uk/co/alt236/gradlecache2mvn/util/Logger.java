@@ -28,7 +28,7 @@ public final class Logger {
         err("ERROR: " + message);
     }
 
-    private static void setMode(final Mode mode) {
+    public static void setMode(final Mode mode) {
         currentMode.set(mode);
     }
 
