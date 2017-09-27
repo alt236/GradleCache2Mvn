@@ -16,6 +16,10 @@ public class CommandLineWrapper {
         return commandLine.hasOption(OptionsBuilder.ARG_DRY_RUN_LONG);
     }
 
+    public boolean isVerbose() {
+        return commandLine.hasOption(OptionsBuilder.ARG_VERBOSE_LONG);
+    }
+
     public String getOutputDirectory() {
         return commandLine.getOptionValue(OptionsBuilder.ARG_MVN_DIR_LONG);
     }

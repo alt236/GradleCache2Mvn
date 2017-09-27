@@ -15,6 +15,9 @@ public class OptionsBuilder {
     /*package*/ static final String ARG_DRY_RUN = "d";
     /*package*/ static final String ARG_DRY_RUN_LONG = "dryrun";
 
+    /*package*/ static final String ARG_VERBOSE = "v";
+    /*package*/ static final String ARG_VERBOSE_LONG = "verbose";
+
     private final Strings strings;
 
     public OptionsBuilder(Strings strings) {
@@ -27,6 +30,7 @@ public class OptionsBuilder {
         options.addOption(createOptionInputLocation());
         options.addOption(createOptionOutputLocation());
         options.addOption(createOptionDryRun());
+        options.addOption(createOptionVerbose());
 
         return options;
     }
@@ -55,6 +59,16 @@ public class OptionsBuilder {
         final String desc = strings.getString("cli_cmd_desc_dry_run");
         return Option.builder(ARG_DRY_RUN)
                 .longOpt(ARG_DRY_RUN_LONG)
+                .hasArg(false)
+                .required(false)
+                .desc(desc)
+                .build();
+    }
+
+    private Option createOptionVerbose() {
+        final String desc = strings.getString("cli_cmd_desc_verbose");
+        return Option.builder(ARG_VERBOSE)
+                .longOpt(ARG_VERBOSE_LONG)
                 .hasArg(false)
                 .required(false)
                 .desc(desc)
