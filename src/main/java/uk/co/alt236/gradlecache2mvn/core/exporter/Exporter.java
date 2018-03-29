@@ -47,7 +47,7 @@ public class Exporter {
             final File source = fileToCopy.getSource().getFile();
             if (shouldCopy(fileToCopy)) {
                 copied++;
-                Logger.logImportant("\tCopying %s to %s%n", source, destination);
+                Logger.logImportant("\tCopying %s to %s", source, destination);
                 if (!dryRun) {
                     try {
                         FileUtils.copyFile(source, destination, true);
