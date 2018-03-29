@@ -4,13 +4,15 @@ Will convert a gradle cache directory structure to the equivelent Maven one.
 
 ### Usage
 
-	Convert a Gradle cache directory structure to a Maven repository one
-
-	 -d,--dryrun         Dry run. No writing will take place.
-	 -i,--input <arg>    Gradle cache directory. If not provided, it will
-	                     default to '~/.gradle/caches/modules-2/files-2.1/'
-	 -o,--output <arg>   Directory where the Maven artifacts will be written
-	                     to.
+    Convert a Gradle cache directory structure to a Maven repository one
+    
+     -d,--dryrun         Dry run. No writing will take place.
+     -i,--input <arg>    Gradle cache directory. If not provided, it will
+                         default to '~/.gradle/caches/modules-2/files-2.1/'
+     -o,--output <arg>   Directory where the Maven artifacts will be written
+                         to.
+     -v,--verbose        Show more information in console.
+    
 
 ### Example Usage
 
