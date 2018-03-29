@@ -6,7 +6,7 @@
 
     <groupId>uk.co.alt236</groupId>
     <artifactId>gradlecache2mvn</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 
     <build>
         <plugins>
