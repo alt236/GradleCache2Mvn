@@ -30,6 +30,7 @@ Binaries can be found here: [https://github.com/alt236/GradleCache2Mvn/releases]
 
 ### Changelog
 - 1.0.0: First release
+- 2.0.0: We now Detect duplicate files and skip exporting if found. Changed output to make it less verbose. This will break any parsers build for v1.0.0.
 
 ### Build Instructions
 Linux/Mac:
