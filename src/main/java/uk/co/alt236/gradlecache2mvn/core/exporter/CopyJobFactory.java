@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
             final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
             if (classifiedFiles.getPomFiles().isEmpty()) {
-                Logger.logError("No POM file found: " + artifactGroup);
+                Logger.logError("No POM file found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else if (classifiedFiles.getPomFiles().size() > 1) {
                 Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup);
