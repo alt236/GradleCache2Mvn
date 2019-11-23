@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class Logger {
 
     private static AtomicReference<Mode> currentMode = new AtomicReference<>(Mode.IMPORTANT);
+    private static final Colorizer coloriser = new Colorizer(true);
 
     public static void log(final String template, Object... params) {
         log(String.format(template, params));
@@ -21,11 +22,11 @@ public final class Logger {
     }
 
     public static void logImportant(final String message) {
-        out(message);
+        out(coloriser.important(message));
     }
 
     public static void logError(final String message) {
-        err("ERROR: " + message);
+        err(coloriser.error("ERROR: " + message));
     }
 
     public static void setMode(final Mode mode) {
