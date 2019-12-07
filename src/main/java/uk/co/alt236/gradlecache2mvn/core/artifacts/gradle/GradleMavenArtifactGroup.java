@@ -42,6 +42,7 @@ public class GradleMavenArtifactGroup implements MavenArtifact {
         return files;
     }
 
+    @Override
     public String getGradleDeclaration() {
         return "'" + groupId + ":" + artifactId + ":" + version + "'";
     }

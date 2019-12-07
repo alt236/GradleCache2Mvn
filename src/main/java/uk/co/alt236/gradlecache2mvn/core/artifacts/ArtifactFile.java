@@ -49,6 +49,11 @@ public class ArtifactFile implements MavenArtifact {
     }
 
     @Override
+    public String getGradleDeclaration() {
+        return "'" + groupId + ":" + artifactId + ":" + version + "'";
+    }
+
+    @Override
     public String toString() {
         return "ArtifactFile{" +
                 "file=" + file.getName() +

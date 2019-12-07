@@ -7,10 +7,12 @@ import uk.co.alt236.gradlecache2mvn.util.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class Exporter {
-    private static final String LOG_TEMPLATE = "For artifactId: %s, groupId: %s, version: %s";
+    private static final String LOG_TEMPLATE = "For artifact: %s";
 
     public Result export(final List<GradleMavenArtifactGroup> artifacts,
                          final String exportPath,
@@ -21,11 +23,14 @@ public class Exporter {
         int copied = 0;
         int skipped = 0;
 
-        for (final GradleMavenArtifactGroup artifactGroup : artifacts) {
+        final List<GradleMavenArtifactGroup> sortedArtifacts = new ArrayList<>(artifacts);
+        sortedArtifacts.sort(Comparator.comparing(GradleMavenArtifactGroup::getGradleDeclaration));
+
+        for (final GradleMavenArtifactGroup artifactGroup : sortedArtifacts) {
             final CopyJobFactory.Result copyJobs = copyJobFactory.createJobs(artifactGroup, exportPath);
             if (!copyJobs.hasError()) {
-                Logger.log(LOG_TEMPLATE, artifactGroup.getArtifactId(), artifactGroup.getGroupId(), artifactGroup.getVersion());
-                Logger.log("\tfiles to copy: " + copyJobs.getFilesToCopy().size());
+                Logger.log(LOG_TEMPLATE, artifactGroup.getGradleDeclaration());
+                Logger.log("Files to copy: " + copyJobs.getFilesToCopy().size());
                 final Result result = copy(copyJobs.getFilesToCopy(), dryRun);
                 errors += result.getErrors();
                 copied += result.getCopied();
@@ -39,28 +44,37 @@ public class Exporter {
     }
 
     private Result copy(List<CopyJobFactory.FileToCopy> filesToCopy, boolean dryRun) {
+        final List<CopyJobFactory.FileToCopy> sortedFiles = new ArrayList<>(filesToCopy);
+        sortedFiles.sort(Comparator.comparing(t -> t.getSource().getFileName()));
+
         int copied = 0;
         int skipped = 0;
 
-        for (final CopyJobFactory.FileToCopy fileToCopy : filesToCopy) {
+        for (final CopyJobFactory.FileToCopy fileToCopy : sortedFiles) {
             final File destination = fileToCopy.getDestination();
             final File source = fileToCopy.getSource().getFile();
+
+            final String gradleDeclaration = fileToCopy.getSource().getGradleDeclaration();
+            final String fileName = fileToCopy.getSource().getFileName();
+
             if (shouldCopy(fileToCopy)) {
                 copied++;
-                Logger.logImportant("\tCopying %s to %s", source, destination);
-                if (!dryRun) {
+                Logger.logImportant("Copying...  %s, file: %s", gradleDeclaration, fileName);
+//                Logger.logImportant("Copying...  %s, file: %s. From %s to %s", gradleDeclaration, fileName, source, destination);
+
+                if (dryRun) {
+                    Logger.logImportant("---DRY RUN---");
+                } else {
                     try {
                         FileUtils.copyFile(source, destination, true);
                         writeMd5(fileToCopy);
                     } catch (IOException e) {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
-                } else {
-                    Logger.logImportant("\t---DRY RUN---");
                 }
             } else {
                 skipped++;
-                Logger.log("\tSkipping as it exists and is the same: Copying %s to %s%n", source, destination);
+                Logger.log("Skipping...  %s, file %s, as it exists and is the same", gradleDeclaration, fileName);
             }
         }
 

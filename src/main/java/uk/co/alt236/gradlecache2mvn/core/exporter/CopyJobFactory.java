@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
     // POM
     // $artifactId-$version.pom
 
-    private static final String FILES_WITH_SAME_NAME_TEMPLATE = "Artifact contains files with the same name: artifactId: %s, groupId: %s, version: %s. Filenames: %s";
+    private static final String FILES_WITH_SAME_NAME_TEMPLATE = "Duplicate filename(s): %s. Duplicate(s): %s";
     private static final String BASE_PATH = "/%s/%s/%s/";
 
     public Result createJobs(final GradleMavenArtifactGroup artifactGroup,
@@ -35,10 +35,10 @@ import java.util.stream.Collectors;
                 Logger.logError("No POM file found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else if (classifiedFiles.getPomFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup);
+                Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPomFiles().size() + " Primary artifact files found: " + artifactGroup);
+                Logger.logError(classifiedFiles.getPomFiles().size() + " primary artifact files found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else {
                 final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
@@ -57,8 +57,7 @@ import java.util.stream.Collectors;
         final List<FileToCopy> retVal = new ArrayList<>();
         final ArtifactFile pomFile = classifiedFiles.getPomFiles().get(0); // There should only be 1
 
-        retVal.add(
-                new FileToCopy(pomFile, new File(basePath + pomFile.getFileName())));
+        retVal.add(new FileToCopy(pomFile, new File(basePath + pomFile.getFileName())));
 
         if (!classifiedFiles.getPrimaryArtifactFiles().isEmpty()) {
             final ArtifactFile primaryFile = classifiedFiles.getPrimaryArtifactFiles().get(0); // There should only be 1
@@ -95,33 +94,33 @@ import java.util.stream.Collectors;
 
         if (!duplicates.isEmpty()) {
             Logger.logError(String.format(Locale.US, FILES_WITH_SAME_NAME_TEMPLATE,
-                    artifactGroup.getArtifactId(), artifactGroup.getGroupId(),
-                    artifactGroup.getVersion(), duplicates));
+                    artifactGroup.getGradleDeclaration(),
+                    duplicates));
             retVal = false;
         }
 
         return retVal;
     }
 
-    public static class Result {
+    static class Result {
         private final List<FileToCopy> filesToCopy;
         private final boolean error;
 
-        public Result(List<FileToCopy> filesToCopy, boolean error) {
+        Result(List<FileToCopy> filesToCopy, boolean error) {
             this.filesToCopy = filesToCopy;
             this.error = error;
         }
 
-        public List<FileToCopy> getFilesToCopy() {
+        List<FileToCopy> getFilesToCopy() {
             return filesToCopy;
         }
 
-        public boolean hasError() {
+        boolean hasError() {
             return error;
         }
     }
 
-    public static class FileToCopy {
+    static class FileToCopy {
         private final ArtifactFile file;
         private final File newPath;
 
@@ -131,11 +130,11 @@ import java.util.stream.Collectors;
             this.newPath = newPath;
         }
 
-        public ArtifactFile getSource() {
+        ArtifactFile getSource() {
             return file;
         }
 
-        public File getDestination() {
+        File getDestination() {
             return newPath;
         }
     }
