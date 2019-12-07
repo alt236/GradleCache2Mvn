@@ -2,6 +2,9 @@ package uk.co.alt236.gradlecache2mvn.core.exporter;
 
 import org.apache.commons.io.FileUtils;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory.CopyJobFactory;
+import uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory.CopyJobs;
+import uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory.FileToCopy;
 import uk.co.alt236.gradlecache2mvn.util.Hasher;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
 
@@ -27,7 +30,7 @@ public class Exporter {
         sortedArtifacts.sort(Comparator.comparing(GradleMavenArtifactGroup::getGradleDeclaration));
 
         for (final GradleMavenArtifactGroup artifactGroup : sortedArtifacts) {
-            final CopyJobFactory.Result copyJobs = copyJobFactory.createJobs(artifactGroup, exportPath);
+            final CopyJobs copyJobs = copyJobFactory.createJobs(artifactGroup, exportPath);
             if (!copyJobs.hasError()) {
                 Logger.log(LOG_TEMPLATE, artifactGroup.getGradleDeclaration());
                 Logger.log("Files to copy: " + copyJobs.getFilesToCopy().size());
@@ -43,14 +46,14 @@ public class Exporter {
         return new Result(copied, skipped, errors);
     }
 
-    private Result copy(List<CopyJobFactory.FileToCopy> filesToCopy, boolean dryRun) {
-        final List<CopyJobFactory.FileToCopy> sortedFiles = new ArrayList<>(filesToCopy);
+    private Result copy(List<FileToCopy> filesToCopy, boolean dryRun) {
+        final List<FileToCopy> sortedFiles = new ArrayList<>(filesToCopy);
         sortedFiles.sort(Comparator.comparing(t -> t.getSource().getFileName()));
 
         int copied = 0;
         int skipped = 0;
 
-        for (final CopyJobFactory.FileToCopy fileToCopy : sortedFiles) {
+        for (final FileToCopy fileToCopy : sortedFiles) {
             final File destination = fileToCopy.getDestination();
             final File source = fileToCopy.getSource().getFile();
 
@@ -68,6 +71,7 @@ public class Exporter {
                     try {
                         FileUtils.copyFile(source, destination, true);
                         writeMd5(fileToCopy);
+                        writeSha1(fileToCopy);
                     } catch (IOException e) {
                         throw new IllegalStateException(e.getMessage(), e);
                     }
@@ -81,12 +85,13 @@ public class Exporter {
         return new Result(copied, skipped, 0);
     }
 
-    private boolean shouldCopy(CopyJobFactory.FileToCopy fileToCopy) {
+    private boolean shouldCopy(FileToCopy fileToCopy) {
         final boolean retVal;
         final boolean destinationExists = fileToCopy.getDestination().exists();
         if (destinationExists) {
             final String destMd5 = Hasher.getMd5(fileToCopy.getDestination());
-            retVal = !destMd5.equals(fileToCopy.getSource().getMd5());
+            final String sourceMd5 = fileToCopy.getSource().getMd5();
+            retVal = !destMd5.equals(sourceMd5);
         } else {
             retVal = true;
         }
@@ -94,7 +99,7 @@ public class Exporter {
         return retVal;
     }
 
-    private void writeMd5(CopyJobFactory.FileToCopy fileToCopy) throws IOException {
+    private void writeMd5(FileToCopy fileToCopy) throws IOException {
         final File destination = fileToCopy.getDestination();
         final File destinationMd5 = new File(fileToCopy.getDestination().getAbsolutePath() + ".md5");
 
@@ -104,28 +109,13 @@ public class Exporter {
         FileUtils.writeStringToFile(destinationMd5, content, "UTF-8");
     }
 
-    public static class Result {
-        private final int copied;
-        private final int skipped;
-        private final int errors;
+    private void writeSha1(FileToCopy fileToCopy) throws IOException {
+        final File destination = fileToCopy.getDestination();
+        final File destinationMd5 = new File(fileToCopy.getDestination().getAbsolutePath() + ".sha1");
 
+        // It has to be 2 spaces between the fields;
+        final String content = fileToCopy.getSource().getSha1() + "  " + destination.getName();
 
-        public Result(int copied, int skipped, int errors) {
-            this.copied = copied;
-            this.skipped = skipped;
-            this.errors = errors;
-        }
-
-        public int getCopied() {
-            return copied;
-        }
-
-        public int getSkipped() {
-            return skipped;
-        }
-
-        public int getErrors() {
-            return errors;
-        }
+        FileUtils.writeStringToFile(destinationMd5, content, "UTF-8");
     }
 }

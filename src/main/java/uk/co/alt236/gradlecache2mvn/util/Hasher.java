@@ -26,4 +26,18 @@ public final class Hasher {
             }
         }
     }
+
+    public static String getSha1(final File file) {
+        BufferedInputStream bis = null;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(file));
+            return DigestUtils.sha1Hex(bis);
+        } catch (IOException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        } finally {
+            if (bis != null) {
+                StreamUtil.close(bis);
+            }
+        }
+    }
 }

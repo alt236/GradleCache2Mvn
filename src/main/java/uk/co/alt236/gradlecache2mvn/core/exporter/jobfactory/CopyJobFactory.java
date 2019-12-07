@@ -1,8 +1,9 @@
-package uk.co.alt236.gradlecache2mvn.core.exporter;
+package uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory;
 
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
+import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ArtifactClassifier;
 import uk.co.alt236.gradlecache2mvn.util.DuplicateFinder;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
 
@@ -13,7 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/*package*/ class CopyJobFactory {
+public final class CopyJobFactory {
     // Primary artifact
     // /$groupId[0]/../$groupId[n]/$artifactId/$version/$artifactId-$version.$extension;
     // Secondary Artifact
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
     private static final String FILES_WITH_SAME_NAME_TEMPLATE = "Duplicate filename(s): %s. Duplicate(s): %s";
     private static final String BASE_PATH = "/%s/%s/%s/";
 
-    public Result createJobs(final GradleMavenArtifactGroup artifactGroup,
-                             final String exportPath) {
+    public CopyJobs createJobs(final GradleMavenArtifactGroup artifactGroup,
+                               final String exportPath) {
         final boolean error;
         List<FileToCopy> filesToCopy = new ArrayList<>();
         if (validateArtifactGroup(artifactGroup)) {
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
             error = true;
         }
 
-        return new Result(filesToCopy, error);
+        return new CopyJobs(filesToCopy, error);
     }
 
     private List<FileToCopy> createCopyJobs(final ArtifactClassifier.ClassifiedFiles classifiedFiles,
@@ -102,40 +103,4 @@ import java.util.stream.Collectors;
         return retVal;
     }
 
-    static class Result {
-        private final List<FileToCopy> filesToCopy;
-        private final boolean error;
-
-        Result(List<FileToCopy> filesToCopy, boolean error) {
-            this.filesToCopy = filesToCopy;
-            this.error = error;
-        }
-
-        List<FileToCopy> getFilesToCopy() {
-            return filesToCopy;
-        }
-
-        boolean hasError() {
-            return error;
-        }
-    }
-
-    static class FileToCopy {
-        private final ArtifactFile file;
-        private final File newPath;
-
-        private FileToCopy(final ArtifactFile file,
-                           final File newPath) {
-            this.file = file;
-            this.newPath = newPath;
-        }
-
-        ArtifactFile getSource() {
-            return file;
-        }
-
-        File getDestination() {
-            return newPath;
-        }
-    }
 }

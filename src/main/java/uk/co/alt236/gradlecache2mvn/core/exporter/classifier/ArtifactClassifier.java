@@ -1,4 +1,4 @@
-package uk.co.alt236.gradlecache2mvn.core.exporter;
+package uk.co.alt236.gradlecache2mvn.core.exporter.classifier;
 
 import org.apache.commons.io.FilenameUtils;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
@@ -6,7 +6,7 @@ import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGro
 
 import java.util.*;
 
-/*package*/ final class ArtifactClassifier {
+public final class ArtifactClassifier {
     private static final Set<String> OTHER_EXTENSIONS = new HashSet<>(Arrays.asList("md5", "sha1"));
 
     public static ClassifiedFiles classify(final GradleMavenArtifactGroup artifactGroup) {

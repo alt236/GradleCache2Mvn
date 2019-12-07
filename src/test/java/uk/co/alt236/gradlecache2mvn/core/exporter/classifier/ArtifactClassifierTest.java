@@ -1,4 +1,4 @@
-package uk.co.alt236.gradlecache2mvn.core.exporter;
+package uk.co.alt236.gradlecache2mvn.core.exporter.classifier;
 
 import org.junit.Test;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
@@ -26,7 +26,7 @@ public class ArtifactClassifierTest {
     }
 
     private static ArtifactFile createArtifactFile(final String filename) {
-        return new ArtifactFile(groupId, artifactId, version, new File(filename), filename);
+        return new ArtifactFile(new File(filename), groupId, artifactId, version, filename, filename);
     }
 
     private static void assertListSize(final int expected, final List<?> list) {

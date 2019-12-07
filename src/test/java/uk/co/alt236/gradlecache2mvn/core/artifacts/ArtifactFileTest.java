@@ -14,14 +14,16 @@ public class ArtifactFileTest {
         final String groupId = "foo";
         final String artifactId = "bar";
         final String version = "baz";
-        final String hash = "qux";
+        final String md5 = "qux1";
+        final String sha1 = "qux2";
         final File file = new File("quux");
 
-        final ArtifactFile artifact = new ArtifactFile(groupId, artifactId, version, file, hash);
+        final ArtifactFile artifact = new ArtifactFile(file, groupId, artifactId, version, md5, sha1);
         assertEquals(groupId, artifact.getGroupId());
         assertEquals(artifactId, artifact.getArtifactId());
         assertEquals(version, artifact.getVersion());
-        assertEquals(hash, artifact.getMd5());
+        assertEquals(md5, artifact.getMd5());
+        assertEquals(sha1, artifact.getSha1());
 
         assertSame(file, artifact.getFile());
         assertEquals("quux", artifact.getFileName());
