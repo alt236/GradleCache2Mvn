@@ -6,4 +6,6 @@ public interface MavenArtifact {
     String getVersion();
 
     String getGroupId();
+
+    String getGradleDeclaration();
 }
