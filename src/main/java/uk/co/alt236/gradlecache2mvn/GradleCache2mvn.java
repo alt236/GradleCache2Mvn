@@ -3,6 +3,7 @@ package uk.co.alt236.gradlecache2mvn;
 import uk.co.alt236.gradlecache2mvn.cli.CommandLineWrapper;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.core.exporter.Exporter;
+import uk.co.alt236.gradlecache2mvn.core.exporter.Result;
 import uk.co.alt236.gradlecache2mvn.core.reader.GradleCacheReader;
 import uk.co.alt236.gradlecache2mvn.resources.Strings;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
@@ -52,7 +53,7 @@ import java.util.Objects;
         Logger.logImportant("Dry run: " + dryRun);
         final List<GradleMavenArtifactGroup> artifacts =
                 new GradleCacheReader(sanePath(saneInput)).getDependencies();
-        final Exporter.Result result = new Exporter().export(artifacts, saneOutput, dryRun);
+        final Result result = new Exporter().export(artifacts, saneOutput, dryRun);
 
         final int artifactCount = artifacts.size();
         final int errors = result.getErrors();

@@ -61,7 +61,13 @@ import java.util.stream.Collectors;
                 DirectoryFileFilter.DIRECTORY));
 
         return files.stream().map(
-                file -> new ArtifactFile(groupId, artifactId, version, file, Hasher.getMd5(file)))
+                file -> new ArtifactFile(
+                        file,
+                        groupId,
+                        artifactId,
+                        version,
+                        Hasher.getMd5(file),
+                        Hasher.getSha1(file)))
                 .sorted(Comparator.comparing(ArtifactFile::getFileName))
                 .collect(Collectors.toList());
     }
