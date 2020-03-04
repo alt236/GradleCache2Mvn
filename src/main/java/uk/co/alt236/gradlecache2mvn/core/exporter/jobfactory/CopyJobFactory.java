@@ -39,7 +39,7 @@ public final class CopyJobFactory {
                 Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPomFiles().size() + " primary artifact files found: " + artifactGroup.getGradleDeclaration());
+                Logger.logError(classifiedFiles.getPrimaryArtifactFiles().size() + " primary artifact files found: " + artifactGroup.getGradleDeclaration());
                 error = true;
             } else {
                 final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);

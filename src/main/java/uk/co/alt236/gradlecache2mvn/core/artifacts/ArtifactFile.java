@@ -4,8 +4,8 @@ import java.io.File;
 
 public class ArtifactFile implements MavenArtifact {
     private final File file;
-    private final String md5;
-    private final String sha1;
+    private final DeferredHash md5;
+    private final DeferredHash sha1;
     private final String groupId;
     private final String artifactId;
     private final String version;
@@ -13,15 +13,13 @@ public class ArtifactFile implements MavenArtifact {
     public ArtifactFile(final File file,
                         final String groupId,
                         final String artifactId,
-                        final String version,
-                        final String md5,
-                        final String sha1) {
+                        final String version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.file = file;
-        this.md5 = md5;
-        this.sha1 = sha1;
+        this.md5 = DeferredHash.createForMd5(file);
+        this.sha1 = DeferredHash.createForSha1(file);
     }
 
     @Override
@@ -44,11 +42,11 @@ public class ArtifactFile implements MavenArtifact {
     }
 
     public String getMd5() {
-        return md5;
+        return md5.getHash();
     }
 
     public String getSha1() {
-        return sha1;
+        return sha1.getHash();
     }
 
     public String getFileName() {

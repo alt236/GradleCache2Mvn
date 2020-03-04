@@ -6,7 +6,6 @@ import org.apache.commons.io.filefilter.RegexFileFilter;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.util.FileUtil;
-import uk.co.alt236.gradlecache2mvn.util.Hasher;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
 
 import java.io.File;
@@ -65,9 +64,7 @@ import java.util.stream.Collectors;
                         file,
                         groupId,
                         artifactId,
-                        version,
-                        Hasher.getMd5(file),
-                        Hasher.getSha1(file)))
+                        version))
                 .sorted(Comparator.comparing(ArtifactFile::getFileName))
                 .collect(Collectors.toList());
     }

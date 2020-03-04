@@ -26,7 +26,7 @@ public class ArtifactClassifierTest {
     }
 
     private static ArtifactFile createArtifactFile(final String filename) {
-        return new ArtifactFile(new File(filename), groupId, artifactId, version, filename, filename);
+        return new ArtifactFile(new File(filename), groupId, artifactId, version);
     }
 
     private static void assertListSize(final int expected, final List<?> list) {
