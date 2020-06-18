@@ -7,7 +7,7 @@ import uk.co.alt236.gradlecache2mvn.util.FileKx.isExtension
 import java.util.*
 
 object ArtifactClassifier {
-    private val OTHER_EXTENSIONS: Set<String> = setOf("md5", "sha1")
+    private val OTHER_EXTENSIONS: Set<String> = setOf("md5", "MD5", "sha1", "SHA1")
 
     @JvmStatic
     fun classify(artifactGroup: GradleMavenArtifactGroup): ClassifiedFiles {

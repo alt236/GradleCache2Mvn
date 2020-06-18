@@ -1,93 +1,96 @@
-package uk.co.alt236.gradlecache2mvn.core.exporter.classifier;
+package uk.co.alt236.gradlecache2mvn.core.exporter.classifier
 
-import org.junit.Test;
-import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
-import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
+import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Test
+import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile
+import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup
+import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ArtifactClassifier.classify
+import java.io.File
+import java.util.*
+import kotlin.streams.toList
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-public class ArtifactClassifierTest {
-    private static final String groupId = "foo";
-    private static final String artifactId = "bar";
-    private static final String version = "baz";
-
-    private static GradleMavenArtifactGroup createArtifactGroup(final String... filenames) {
-        final List<ArtifactFile> artifacts = new ArrayList<>();
-        for (final String filename : filenames) {
-            artifacts.add(createArtifactFile(filename));
-        }
-
-        return new GradleMavenArtifactGroup(groupId, artifactId, version, artifacts);
-    }
-
-    private static ArtifactFile createArtifactFile(final String filename) {
-        return new ArtifactFile(new File(filename), groupId, artifactId, version);
-    }
-
-    private static void assertListSize(final int expected, final List<?> list) {
-        assertEquals("Contents: " + list.size(), expected, list.size());
-    }
-
+class ArtifactClassifierTest {
     @Test
-    public void testClassify_valid() throws Exception {
-        final String validName = artifactId + "-" + version;
-        final String primaryItem = validName + ".jar";
-        final String secondaryItem = validName + "-other.jar";
-        final String pomFile = "blah.pom";
-        final String otherFile = "blah.md5";
+    @Throws(Exception::class)
+    fun testClassify_valid() {
+        val validName = "$artifactId-$version"
+        val primaryItem = "$validName.jar"
+        val secondaryItem = "$validName-other.jar"
+        val pomFile = "blah.pom"
+        val otherFile = "blah.md5"
 
-        final GradleMavenArtifactGroup group = createArtifactGroup(
+        val group = createArtifactGroup(
                 primaryItem,
                 secondaryItem,
                 pomFile,
-                otherFile);
+                otherFile)
 
-        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
+        val (pomFiles, primaryArtifactFiles, secondaryArtifactFiles, otherFiles) = classify(group)
 
-        assertNotNull(classifiedFiles.getPrimaryArtifactFiles());
-        assertNotNull(classifiedFiles.getSecondaryArtifactFiles());
-        assertNotNull(classifiedFiles.getPomFiles());
-        assertNotNull(classifiedFiles.getOtherFiles());
+        assertNotNull(primaryArtifactFiles)
+        assertNotNull(secondaryArtifactFiles)
+        assertNotNull(pomFiles)
+        assertNotNull(otherFiles)
 
-        assertListSize(1, classifiedFiles.getPrimaryArtifactFiles());
-        assertListSize(1, classifiedFiles.getSecondaryArtifactFiles());
-        assertListSize(1, classifiedFiles.getPomFiles());
-        assertListSize(1, classifiedFiles.getOtherFiles());
+        assertListSize("Primary", 1, primaryArtifactFiles)
+        assertListSize("Secondary", 1, secondaryArtifactFiles)
+        assertListSize("Pom", 1, pomFiles)
+        assertListSize("Other", 1, otherFiles)
 
-        assertEquals(primaryItem, classifiedFiles.getPrimaryArtifactFiles().get(0).getFileName());
-        assertEquals(secondaryItem, classifiedFiles.getSecondaryArtifactFiles().get(0).getFileName());
-        assertEquals(pomFile, classifiedFiles.getPomFiles().get(0).getFileName());
-        assertEquals(otherFile, classifiedFiles.getOtherFiles().get(0).getFileName());
+        assertEquals(primaryItem, primaryArtifactFiles[0].fileName)
+        assertEquals(secondaryItem, secondaryArtifactFiles[0].fileName)
+        assertEquals(pomFile, pomFiles[0].fileName)
+        assertEquals(otherFile, otherFiles[0].fileName)
     }
 
     @Test
-    public void testClassify_other_files() throws Exception {
-        final String[] files = {"blah.md5", "blah.sha1", "blah", "blah.MD5", "blah.SHA1"};
+    @Throws(Exception::class)
+    fun testClassify_other_files() {
+        val files = arrayOf("blah.md5", "blah.sha1", "blah", "blah.MD5", "blah.SHA1")
+        val group = createArtifactGroup(*files)
+        val (pomFiles, primaryArtifactFiles, secondaryArtifactFiles, otherFiles) = classify(group)
 
-        final GradleMavenArtifactGroup group = createArtifactGroup(files);
-
-        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
-
-        assertListSize(0, classifiedFiles.getPrimaryArtifactFiles());
-        assertListSize(0, classifiedFiles.getSecondaryArtifactFiles());
-        assertListSize(0, classifiedFiles.getPomFiles());
-        assertListSize(files.length, classifiedFiles.getOtherFiles());
+        assertListSize("Primary", 0, primaryArtifactFiles)
+        assertListSize("Secondary", 0, secondaryArtifactFiles)
+        assertListSize("Pom", 0, pomFiles)
+        assertListSize("Other", files.size, otherFiles)
     }
 
     @Test
-    public void testClassify_empty() throws Exception {
-        final GradleMavenArtifactGroup group = createArtifactGroup(new String[0]);
+    @Throws(Exception::class)
+    fun testClassify_empty() {
+        val group = createArtifactGroup()
+        val (pomFiles, primaryArtifactFiles, secondaryArtifactFiles, otherFiles) = classify(group)
 
-        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
+        assertNotNull(primaryArtifactFiles)
+        assertNotNull(secondaryArtifactFiles)
+        assertNotNull(pomFiles)
+        assertNotNull(otherFiles)
+    }
 
-        assertNotNull(classifiedFiles.getPrimaryArtifactFiles());
-        assertNotNull(classifiedFiles.getSecondaryArtifactFiles());
-        assertNotNull(classifiedFiles.getPomFiles());
-        assertNotNull(classifiedFiles.getOtherFiles());
+    private companion object {
+        private const val groupId = "foo"
+        private const val artifactId = "bar"
+        private const val version = "baz"
+
+        private fun createArtifactGroup(vararg filenames: String): GradleMavenArtifactGroup {
+            val artifacts: MutableList<ArtifactFile> = ArrayList()
+            for (filename in filenames) {
+                artifacts.add(createArtifactFile(filename))
+            }
+            return GradleMavenArtifactGroup(groupId, artifactId, version, artifacts)
+        }
+
+        private fun createArtifactFile(filename: String): ArtifactFile {
+            return ArtifactFile(File(filename), groupId, artifactId, version)
+        }
+
+        private fun assertListSize(message: String, expected: Int, list: List<ArtifactFile>) {
+            val contents = list.stream().map { it.fileName }.toList()
+
+            Assert.assertEquals("List: $message. contents: $contents", expected.toLong(), list.size.toLong())
+        }
     }
 }
