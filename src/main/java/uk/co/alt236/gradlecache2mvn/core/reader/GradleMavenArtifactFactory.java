@@ -37,11 +37,14 @@ import java.util.stream.Collectors;
                 final GradleMavenArtifactGroup artifactGroup = new GradleMavenArtifactGroup(groupId, artifactId, version, files);
                 Logger.log(String.format(Locale.US, LOG_ARTIFACT, artifactGroup.getGradleDeclaration()));
 
-                for (final ArtifactFile file : files) {
-                    final String fileName = file.getFileName();
-                    final String hash = file.getMd5();
-                    Logger.log(String.format(Locale.US, LOG_FILES, fileName, hash));
+                if (Logger.isLogEverything()) {
+                    for (final ArtifactFile file : files) {
+                        final String fileName = file.getFileName();
+                        final String hash = file.getMd5();
+                        Logger.log(String.format(Locale.US, LOG_FILES, fileName, hash));
+                    }
                 }
+
                 retVal.add(artifactGroup);
             }
         }

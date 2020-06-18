@@ -12,13 +12,17 @@ public final class Logger {
     }
 
     public static void log(final String message) {
-        if (currentMode.get() == Mode.ALL) {
+        if (isLogEverything()) {
             out(message);
         }
     }
 
     public static void logImportant(final String template, Object... params) {
         logImportant(String.format(template, params));
+    }
+
+    public static boolean isLogEverything() {
+        return currentMode.get() == Mode.ALL;
     }
 
     public static void logImportant(final String message) {
