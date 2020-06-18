@@ -1,29 +1,38 @@
 package uk.co.alt236.gradlecache2mvn.core.exporter
 
 import uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory.FileToCopy
-import uk.co.alt236.gradlecache2mvn.util.Hasher
+import uk.co.alt236.gradlecache2mvn.util.FileKx.getMd5
 
 internal class CopyEvaluator(private val overwriteDifferentFiles: Boolean) {
 
     fun evaluate(fileToCopy: FileToCopy): Action {
         val destinationExists = fileToCopy.destination.exists()
 
-        return if (destinationExists) {
-            return if (overwriteDifferentFiles) {
-                val destMd5 = Hasher.getMd5(fileToCopy.destination)
-                val sourceMd5 = fileToCopy.source.md5
-                if (sourceMd5 == destMd5) {
-                    Action.SKIP_SAME_HASH
-                } else {
-                    Action.COPY
-                }
+        if (!destinationExists) {
+            return Action.COPY
+        }
+
+        return if (overwriteDifferentFiles) {
+            if (areFilesSame(fileToCopy)) {
+                Action.SKIP_SAME_HASH
             } else {
-                Action.SKIP_FILE_EXISTS
+                Action.COPY
             }
         } else {
-            Action.COPY
+            Action.SKIP_FILE_EXISTS
         }
     }
+
+    private fun areFilesSame(fileToCopy: FileToCopy): Boolean {
+        val isFileSizeSame = fileToCopy.destination.length() == fileToCopy.source.length
+
+        if (!isFileSizeSame) {
+            return false;
+        }
+
+        return fileToCopy.destination.getMd5() == fileToCopy.source.md5
+    }
+
 
     enum class Action {
         COPY,

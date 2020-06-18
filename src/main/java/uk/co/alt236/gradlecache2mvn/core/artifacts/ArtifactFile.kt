@@ -1,6 +1,7 @@
 package uk.co.alt236.gradlecache2mvn.core.artifacts
 
-import uk.co.alt236.gradlecache2mvn.util.Hasher
+import uk.co.alt236.gradlecache2mvn.util.FileKx.getMd5
+import uk.co.alt236.gradlecache2mvn.util.FileKx.getSha1
 import java.io.File
 
 data class ArtifactFile(val file: File,
@@ -8,10 +9,12 @@ data class ArtifactFile(val file: File,
                         private val artifactId: String,
                         private val version: String) : MavenArtifact {
 
-    val md5: String by lazy { Hasher.getMd5(file) }
-    val sha1: String by lazy { Hasher.getSha1(file) }
+    val md5: String by lazy { file.getMd5() }
+    val sha1: String by lazy { file.getSha1() }
 
     val fileName: String = file.name
+
+    val length = file.length()
 
     override fun getArtifactId(): String {
         return artifactId

@@ -47,7 +47,7 @@ public class ArtifactClassifierTest {
                 pomFile,
                 otherFile);
 
-        final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
+        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
 
         assertNotNull(classifiedFiles.getPrimaryArtifactFiles());
         assertNotNull(classifiedFiles.getSecondaryArtifactFiles());
@@ -71,7 +71,7 @@ public class ArtifactClassifierTest {
 
         final GradleMavenArtifactGroup group = createArtifactGroup(files);
 
-        final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
+        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
 
         assertListSize(0, classifiedFiles.getPrimaryArtifactFiles());
         assertListSize(0, classifiedFiles.getSecondaryArtifactFiles());
@@ -83,7 +83,7 @@ public class ArtifactClassifierTest {
     public void testClassify_empty() throws Exception {
         final GradleMavenArtifactGroup group = createArtifactGroup(new String[0]);
 
-        final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
+        final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(group);
 
         assertNotNull(classifiedFiles.getPrimaryArtifactFiles());
         assertNotNull(classifiedFiles.getSecondaryArtifactFiles());

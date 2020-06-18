@@ -4,6 +4,7 @@ import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ArtifactClassifier;
+import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ClassifiedFiles;
 import uk.co.alt236.gradlecache2mvn.util.DuplicateFinder;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
 
@@ -30,7 +31,7 @@ public final class CopyJobFactory {
         final boolean error;
         List<FileToCopy> filesToCopy = new ArrayList<>();
         if (validateArtifactGroup(artifactGroup)) {
-            final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
+            final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
             if (classifiedFiles.getPomFiles().isEmpty()) {
                 ErrorLogger.logNoPomFilesFound(artifactGroup, classifiedFiles);
@@ -53,7 +54,7 @@ public final class CopyJobFactory {
         return new CopyJobs(filesToCopy, error);
     }
 
-    private List<FileToCopy> createCopyJobs(final ArtifactClassifier.ClassifiedFiles classifiedFiles,
+    private List<FileToCopy> createCopyJobs(final ClassifiedFiles classifiedFiles,
                                             final String basePath) {
         final List<FileToCopy> retVal = new ArrayList<>();
         final ArtifactFile pomFile = classifiedFiles.getPomFiles().get(0); // There should only be 1
