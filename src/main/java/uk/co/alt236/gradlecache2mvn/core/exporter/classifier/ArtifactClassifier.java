@@ -16,7 +16,7 @@ public final class ArtifactClassifier {
         final List<ArtifactFile> secondaryArtifactFiles = new ArrayList<>();
         final List<ArtifactFile> otherFiles = new ArrayList<>();
 
-        for (final ArtifactFile file : artifactGroup.getFiles()) {
+        for (final ArtifactFile file : artifactGroup.getArtifacts()) {
             final String fileName = file.getFileName();
             if (FilenameUtils.isExtension(fileName, "pom")) {
                 pomFiles.add(file);
@@ -75,6 +75,10 @@ public final class ArtifactClassifier {
 
         public List<ArtifactFile> getOtherFiles() {
             return otherFiles;
+        }
+
+        public int getNonPomFileCount() {
+            return primaryArtifactFiles.size() + secondaryArtifactFiles.size() + otherFiles.size();
         }
     }
 

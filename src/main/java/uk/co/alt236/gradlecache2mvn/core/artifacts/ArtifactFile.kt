@@ -1,69 +1,40 @@
-package uk.co.alt236.gradlecache2mvn.core.artifacts;
+package uk.co.alt236.gradlecache2mvn.core.artifacts
 
-import java.io.File;
+import uk.co.alt236.gradlecache2mvn.util.Hasher
+import java.io.File
 
-public class ArtifactFile implements MavenArtifact {
-    private final File file;
-    private final DeferredHash md5;
-    private final DeferredHash sha1;
-    private final String groupId;
-    private final String artifactId;
-    private final String version;
+data class ArtifactFile(val file: File,
+                        private val groupId: String,
+                        private val artifactId: String,
+                        private val version: String) : MavenArtifact {
 
-    public ArtifactFile(final File file,
-                        final String groupId,
-                        final String artifactId,
-                        final String version) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.file = file;
-        this.md5 = DeferredHash.createForMd5(file);
-        this.sha1 = DeferredHash.createForSha1(file);
+    val md5: String by lazy { Hasher.getMd5(file) }
+    val sha1: String by lazy { Hasher.getSha1(file) }
+
+    val fileName: String = file.name
+
+    override fun getArtifactId(): String {
+        return artifactId
     }
 
-    @Override
-    public String getArtifactId() {
-        return artifactId;
+    override fun getVersion(): String {
+        return version
     }
 
-    @Override
-    public String getVersion() {
-        return version;
+    override fun getGroupId(): String {
+        return groupId
     }
 
-    @Override
-    public String getGroupId() {
-        return groupId;
+    override fun getGradleDeclaration(): String {
+        return "'$groupId:$artifactId:$version'"
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public String getMd5() {
-        return md5.getHash();
-    }
-
-    public String getSha1() {
-        return sha1.getHash();
-    }
-
-    public String getFileName() {
-        return file.getName();
-    }
-
-    @Override
-    public String getGradleDeclaration() {
-        return "'" + groupId + ":" + artifactId + ":" + version + "'";
-    }
-
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "ArtifactFile{" +
-                "file=" + file.getName() +
+                "file=" + file.name +
                 ", md5='" + md5 + '\'' +
                 ", sha1='" + sha1 + '\'' +
-                '}';
+                '}'
     }
+
 }

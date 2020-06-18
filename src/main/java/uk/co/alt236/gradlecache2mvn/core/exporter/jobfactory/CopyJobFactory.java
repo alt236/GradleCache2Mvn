@@ -33,13 +33,13 @@ public final class CopyJobFactory {
             final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
             if (classifiedFiles.getPomFiles().isEmpty()) {
-                Logger.logError("No POM file found: " + artifactGroup.getGradleDeclaration());
+                ErrorLogger.logNoPomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPomFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup.getGradleDeclaration());
+                ErrorLogger.logMultiplePomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPrimaryArtifactFiles().size() + " primary artifact files found: " + artifactGroup.getGradleDeclaration());
+                ErrorLogger.logMultiplePrimaryArtifacts(artifactGroup, classifiedFiles);
                 error = true;
             } else {
                 final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
@@ -87,7 +87,7 @@ public final class CopyJobFactory {
     private boolean validateArtifactGroup(GradleMavenArtifactGroup artifactGroup) {
         boolean retVal = true;
         final List<String> fileNames = new ArrayList<>();
-        for (final ArtifactFile file : artifactGroup.getFiles()) {
+        for (final ArtifactFile file : artifactGroup.getArtifacts()) {
             fileNames.add(file.getFileName());
         }
 

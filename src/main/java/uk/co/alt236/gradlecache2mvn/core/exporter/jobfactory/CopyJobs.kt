@@ -1,21 +1,10 @@
-package uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory;
+package uk.co.alt236.gradlecache2mvn.core.exporter.jobfactory
 
-import java.util.List;
+internal data class CopyJobs constructor(val filesToCopy: List<FileToCopy>,
+                                         private val error: Boolean) {
 
-public class CopyJobs {
-    private final List<FileToCopy> filesToCopy;
-    private final boolean error;
-
-    CopyJobs(List<FileToCopy> filesToCopy, boolean error) {
-        this.filesToCopy = filesToCopy;
-        this.error = error;
+    fun hasError(): Boolean {
+        return error
     }
 
-    public List<FileToCopy> getFilesToCopy() {
-        return filesToCopy;
-    }
-
-    public boolean hasError() {
-        return error;
-    }
 }

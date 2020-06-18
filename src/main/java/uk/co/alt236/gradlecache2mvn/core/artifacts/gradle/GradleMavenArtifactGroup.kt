@@ -1,59 +1,38 @@
-package uk.co.alt236.gradlecache2mvn.core.artifacts.gradle;
+package uk.co.alt236.gradlecache2mvn.core.artifacts.gradle
 
-import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
-import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
+import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile
+import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact
+import java.util.*
 
-import java.util.Collection;
-import java.util.Collections;
+data class GradleMavenArtifactGroup(private val groupId: String,
+                                    private val artifactId: String,
+                                    private val version: String,
+                                    private val files: Collection<ArtifactFile>) : MavenArtifact {
 
-public class GradleMavenArtifactGroup implements MavenArtifact {
+    val artifacts: MutableCollection<ArtifactFile> = Collections.unmodifiableCollection(files)
 
-    private final String groupId;
-    private final String artifactId;
-    private final String version;
-    private final Collection<ArtifactFile> files;
-
-    public GradleMavenArtifactGroup(String groupId,
-                                    String artifactId,
-                                    String version,
-                                    Collection<ArtifactFile> files) {
-        this.groupId = groupId;
-        this.artifactId = artifactId;
-        this.version = version;
-        this.files = Collections.unmodifiableCollection(files);
+    override fun getArtifactId(): String {
+        return artifactId
     }
 
-    @Override
-    public String getArtifactId() {
-        return artifactId;
+    override fun getVersion(): String {
+        return version
     }
 
-    @Override
-    public String getVersion() {
-        return version;
+    override fun getGroupId(): String {
+        return groupId
     }
 
-    @Override
-    public String getGroupId() {
-        return groupId;
+    override fun getGradleDeclaration(): String {
+        return "'$groupId:$artifactId:$version'"
     }
 
-    public Collection<ArtifactFile> getFiles() {
-        return files;
-    }
-
-    @Override
-    public String getGradleDeclaration() {
-        return "'" + groupId + ":" + artifactId + ":" + version + "'";
-    }
-
-    @Override
-    public String toString() {
+    override fun toString(): String {
         return "GradleMavenArtifactGroup{" +
                 "groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
                 ", version='" + version + '\'' +
-                ", files=" + files +
-                '}';
+                ", artifacts=" + artifacts +
+                '}'
     }
 }
