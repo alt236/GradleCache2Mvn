@@ -30,8 +30,7 @@ public class ArtifactClassifierTest {
     }
 
     private static void assertListSize(final int expected, final List<?> list) {
-        final String message = "Contents: " + list.toString();
-        assertEquals(message, expected, list.size());
+        assertEquals("Contents: " + list.size(), expected, list.size());
     }
 
     @Test
