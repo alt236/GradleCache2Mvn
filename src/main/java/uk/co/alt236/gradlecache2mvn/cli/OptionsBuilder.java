@@ -18,6 +18,8 @@ public class OptionsBuilder {
     /*package*/ static final String ARG_VERBOSE = "v";
     /*package*/ static final String ARG_VERBOSE_LONG = "verbose";
 
+    /*package*/ static final String ARG_OVERWRITE_FILES_LONG = "overwrite-non-identical-files";
+
     private final Strings strings;
 
     public OptionsBuilder(Strings strings) {
@@ -31,6 +33,7 @@ public class OptionsBuilder {
         options.addOption(createOptionOutputLocation());
         options.addOption(createOptionDryRun());
         options.addOption(createOptionVerbose());
+        options.addOption(createOptionOverwriteDifferentFiles());
 
         return options;
     }
@@ -69,6 +72,16 @@ public class OptionsBuilder {
         final String desc = strings.getString("cli_cmd_desc_verbose");
         return Option.builder(ARG_VERBOSE)
                 .longOpt(ARG_VERBOSE_LONG)
+                .hasArg(false)
+                .required(false)
+                .desc(desc)
+                .build();
+    }
+
+    private Option createOptionOverwriteDifferentFiles() {
+        final String desc = strings.getString("cli_cmd_desc_overwrite_different_files");
+        return Option.builder()
+                .longOpt(ARG_OVERWRITE_FILES_LONG)
                 .hasArg(false)
                 .required(false)
                 .desc(desc)

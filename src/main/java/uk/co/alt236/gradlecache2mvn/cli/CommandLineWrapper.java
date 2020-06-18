@@ -20,6 +20,10 @@ public class CommandLineWrapper {
         return commandLine.hasOption(OptionsBuilder.ARG_VERBOSE_LONG);
     }
 
+    public boolean isOverwriteDifferentFiles() {
+        return commandLine.hasOption(OptionsBuilder.ARG_OVERWRITE_FILES_LONG);
+    }
+
     public String getOutputDirectory() {
         return commandLine.getOptionValue(OptionsBuilder.ARG_MVN_DIR_LONG);
     }
