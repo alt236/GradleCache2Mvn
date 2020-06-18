@@ -34,6 +34,20 @@ import java.util.Objects;
         return retVal;
     }
 
+    public static String humanReadableByteCount(long bytes, boolean si) {
+
+        int unit = si ? 1000 : 1024;
+
+        if (bytes < unit) return bytes + " B";
+
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1) + (si ? "" : "i");
+
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+
+    }
+
     void doWork() {
         final String input = commandLine.getInputDirectory();
         final String output = commandLine.getOutputDirectory();
@@ -63,13 +77,17 @@ import java.util.Objects;
         final int errors = result.getErrors();
         final int copied = result.getCopied();
         final int skipped = result.getSkipped();
+        final long bytes = result.getBytesCopied();
+
         final int fileCount = artifacts.stream()
                 .map(GradleMavenArtifactGroup::getArtifacts)
                 .filter(Objects::nonNull)
                 .mapToInt(Collection::size)
                 .sum();
 
-        Logger.logImportant("Done! Artifacts: %d, Files %d, Copied %d, Skipped %d, Errors %d", artifactCount, fileCount, copied, skipped, errors);
+        Logger.logImportant(
+                "Done! Artifacts: %d, Files %d, Copied %d, Skipped %d, Errors %d. %s copied.",
+                artifactCount, fileCount, copied, skipped, errors, humanReadableByteCount(bytes, true));
         if ((skipped + copied + errors) != fileCount) {
             throw new IllegalStateException("The sum of skipped, copied and errors is not the same as the total file count!");
         }

@@ -23,6 +23,7 @@ public class Exporter {
         int errors = 0;
         int copied = 0;
         int skipped = 0;
+        long bytesCopied = 0;
 
         final List<GradleMavenArtifactGroup> sortedArtifacts = new ArrayList<>(artifacts);
         sortedArtifacts.sort(Comparator.comparing(GradleMavenArtifactGroup::getGradleDeclaration));
@@ -38,12 +39,13 @@ public class Exporter {
                 errors += result.getErrors();
                 copied += result.getCopied();
                 skipped += result.getSkipped();
+                bytesCopied += result.getBytesCopied();
             } else {
                 errors += artifactGroup.getArtifacts().size();
             }
         }
 
-        return new Result(copied, skipped, errors);
+        return new Result(copied, skipped, errors, bytesCopied);
     }
 
     private Result copy(CopyEvaluator evaluator, List<FileToCopy> filesToCopy, boolean dryRun) {
@@ -53,6 +55,7 @@ public class Exporter {
 
         int copied = 0;
         int skipped = 0;
+        long bytesCopied = 0;
 
         for (final FileToCopy fileToCopy : sortedFiles) {
             final String gradleDeclaration = fileToCopy.getSource().getGradleDeclaration();
@@ -61,6 +64,7 @@ public class Exporter {
             switch (evaluator.evaluate(fileToCopy)) {
                 case COPY:
                     copied++;
+                    bytesCopied += fileToCopy.getSource().getLength();
                     Logger.logImportant("Copying...  %s, file: %s", gradleDeclaration, fileName);
                     if (dryRun) {
                         Logger.logImportant("---DRY RUN---");
@@ -79,8 +83,7 @@ public class Exporter {
             }
         }
 
-        return new Result(copied, skipped, 0);
+        return new Result(copied, skipped, 0, bytesCopied);
     }
-
 
 }
