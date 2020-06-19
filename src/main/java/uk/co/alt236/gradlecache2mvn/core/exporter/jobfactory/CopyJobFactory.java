@@ -4,6 +4,7 @@ import uk.co.alt236.gradlecache2mvn.core.artifacts.ArtifactFile;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.MavenArtifact;
 import uk.co.alt236.gradlecache2mvn.core.artifacts.gradle.GradleMavenArtifactGroup;
 import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ArtifactClassifier;
+import uk.co.alt236.gradlecache2mvn.core.exporter.classifier.ClassifiedFiles;
 import uk.co.alt236.gradlecache2mvn.util.DuplicateFinder;
 import uk.co.alt236.gradlecache2mvn.util.Logger;
 
@@ -15,6 +16,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class CopyJobFactory {
+
+    private final ErrorLogger errorLogger;
+
+    public CopyJobFactory(boolean hideNoPomError) {
+        this.errorLogger = new ErrorLogger(hideNoPomError);
+    }
+
     // Primary artifact
     // /$groupId[0]/../$groupId[n]/$artifactId/$version/$artifactId-$version.$extension;
     // Secondary Artifact
@@ -30,16 +38,16 @@ public final class CopyJobFactory {
         final boolean error;
         List<FileToCopy> filesToCopy = new ArrayList<>();
         if (validateArtifactGroup(artifactGroup)) {
-            final ArtifactClassifier.ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
+            final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
             if (classifiedFiles.getPomFiles().isEmpty()) {
-                Logger.logError("No POM file found: " + artifactGroup.getGradleDeclaration());
+                errorLogger.logNoPomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPomFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPomFiles().size() + " POM files found: " + artifactGroup.getGradleDeclaration());
+                errorLogger.logMultiplePomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-                Logger.logError(classifiedFiles.getPrimaryArtifactFiles().size() + " primary artifact files found: " + artifactGroup.getGradleDeclaration());
+                errorLogger.logMultiplePrimaryArtifacts(artifactGroup, classifiedFiles);
                 error = true;
             } else {
                 final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);
@@ -53,7 +61,7 @@ public final class CopyJobFactory {
         return new CopyJobs(filesToCopy, error);
     }
 
-    private List<FileToCopy> createCopyJobs(final ArtifactClassifier.ClassifiedFiles classifiedFiles,
+    private List<FileToCopy> createCopyJobs(final ClassifiedFiles classifiedFiles,
                                             final String basePath) {
         final List<FileToCopy> retVal = new ArrayList<>();
         final ArtifactFile pomFile = classifiedFiles.getPomFiles().get(0); // There should only be 1
@@ -87,7 +95,7 @@ public final class CopyJobFactory {
     private boolean validateArtifactGroup(GradleMavenArtifactGroup artifactGroup) {
         boolean retVal = true;
         final List<String> fileNames = new ArrayList<>();
-        for (final ArtifactFile file : artifactGroup.getFiles()) {
+        for (final ArtifactFile file : artifactGroup.getArtifacts()) {
             fileNames.add(file.getFileName());
         }
 
