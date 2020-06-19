@@ -20,6 +20,8 @@ public class OptionsBuilder {
 
     /*package*/ static final String ARG_OVERWRITE_FILES_LONG = "overwrite-non-identical-files";
 
+    /*package*/ static final String ARG_HIDE_NO_POM_ERROR_LONG = "hide-no-pom-error";
+
     private final Strings strings;
 
     public OptionsBuilder(Strings strings) {
@@ -34,6 +36,7 @@ public class OptionsBuilder {
         options.addOption(createOptionDryRun());
         options.addOption(createOptionVerbose());
         options.addOption(createOptionOverwriteDifferentFiles());
+        options.addOption(createOptionHideNoPomFoundError());
 
         return options;
     }
@@ -82,6 +85,16 @@ public class OptionsBuilder {
         final String desc = strings.getString("cli_cmd_desc_overwrite_different_files");
         return Option.builder()
                 .longOpt(ARG_OVERWRITE_FILES_LONG)
+                .hasArg(false)
+                .required(false)
+                .desc(desc)
+                .build();
+    }
+
+    private Option createOptionHideNoPomFoundError() {
+        final String desc = strings.getString("cli_cmd_hide_no_pom_error");
+        return Option.builder()
+                .longOpt(ARG_HIDE_NO_POM_ERROR_LONG)
                 .hasArg(false)
                 .required(false)
                 .desc(desc)

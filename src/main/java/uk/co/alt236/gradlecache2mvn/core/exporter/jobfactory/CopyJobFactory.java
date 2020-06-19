@@ -16,6 +16,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class CopyJobFactory {
+
+    private final ErrorLogger errorLogger;
+
+    public CopyJobFactory(boolean hideNoPomError) {
+        this.errorLogger = new ErrorLogger(hideNoPomError);
+    }
+
     // Primary artifact
     // /$groupId[0]/../$groupId[n]/$artifactId/$version/$artifactId-$version.$extension;
     // Secondary Artifact
@@ -34,13 +41,13 @@ public final class CopyJobFactory {
             final ClassifiedFiles classifiedFiles = ArtifactClassifier.classify(artifactGroup);
 
             if (classifiedFiles.getPomFiles().isEmpty()) {
-                ErrorLogger.logNoPomFilesFound(artifactGroup, classifiedFiles);
+                errorLogger.logNoPomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPomFiles().size() > 1) {
-                ErrorLogger.logMultiplePomFilesFound(artifactGroup, classifiedFiles);
+                errorLogger.logMultiplePomFilesFound(artifactGroup, classifiedFiles);
                 error = true;
             } else if (classifiedFiles.getPrimaryArtifactFiles().size() > 1) {
-                ErrorLogger.logMultiplePrimaryArtifacts(artifactGroup, classifiedFiles);
+                errorLogger.logMultiplePrimaryArtifacts(artifactGroup, classifiedFiles);
                 error = true;
             } else {
                 final String basePath = exportPath + getMvnDirectoryStructure(artifactGroup);

@@ -8,8 +8,6 @@ public class CommandLineWrapper {
 
     public CommandLineWrapper(final CommandLine commandLine) {
         this.commandLine = commandLine;
-//        System.out.println(commandLine.getArgList());
-//        System.out.println(Arrays.toString(commandLine.getOptions()));
     }
 
     public boolean isDryRun() {
@@ -22,6 +20,10 @@ public class CommandLineWrapper {
 
     public boolean isOverwriteDifferentFiles() {
         return commandLine.hasOption(OptionsBuilder.ARG_OVERWRITE_FILES_LONG);
+    }
+
+    public boolean isHideNoPomFoundError() {
+        return commandLine.hasOption(OptionsBuilder.ARG_HIDE_NO_POM_ERROR_LONG);
     }
 
     public String getOutputDirectory() {

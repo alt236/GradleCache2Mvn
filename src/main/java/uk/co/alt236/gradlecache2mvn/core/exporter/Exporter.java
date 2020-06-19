@@ -13,28 +13,34 @@ import java.util.List;
 public class Exporter {
     private static final String LOG_TEMPLATE = "For artifact: %s";
     private static final FileWriter fileWriter = new FileWriter();
+    private final CopyJobFactory copyJobFactory;
+
+    public Exporter(boolean hideNoPomError) {
+        this.copyJobFactory = new CopyJobFactory(hideNoPomError);
+    }
 
     public Result export(final List<GradleMavenArtifactGroup> artifacts,
                          final String exportPath,
                          final boolean dryRun,
                          final boolean overwriteDifferentFiles) {
 
-        final CopyJobFactory copyJobFactory = new CopyJobFactory();
-        int errors = 0;
-        int copied = 0;
-        int skipped = 0;
-        long bytesCopied = 0;
+        final CopyEvaluator evaluator = new CopyEvaluator(overwriteDifferentFiles);
+
 
         final List<GradleMavenArtifactGroup> sortedArtifacts = new ArrayList<>(artifacts);
         sortedArtifacts.sort(Comparator.comparing(GradleMavenArtifactGroup::getGradleDeclaration));
 
-        final CopyEvaluator evaluator = new CopyEvaluator(overwriteDifferentFiles);
+        int errors = 0;
+        int copied = 0;
+        int skipped = 0;
+        long bytesCopied = 0;
 
         for (final GradleMavenArtifactGroup artifactGroup : sortedArtifacts) {
             final CopyJobs copyJobs = copyJobFactory.createJobs(artifactGroup, exportPath);
             if (!copyJobs.hasError()) {
                 Logger.log(LOG_TEMPLATE, artifactGroup.getGradleDeclaration());
                 Logger.log("Files to copy: " + copyJobs.getFilesToCopy().size());
+
                 final Result result = copy(evaluator, copyJobs.getFilesToCopy(), dryRun);
                 errors += result.getErrors();
                 copied += result.getCopied();
@@ -51,7 +57,6 @@ public class Exporter {
     private Result copy(CopyEvaluator evaluator, List<FileToCopy> filesToCopy, boolean dryRun) {
         final List<FileToCopy> sortedFiles = new ArrayList<>(filesToCopy);
         sortedFiles.sort(Comparator.comparing(t -> t.getSource().getFileName()));
-
 
         int copied = 0;
         int skipped = 0;
